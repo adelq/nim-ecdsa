@@ -1,4 +1,5 @@
 import bigints
+import math
 
 const smallprimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41,
                      43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
@@ -91,3 +92,34 @@ proc lcm2(a: int, b: int): int =
 proc lcm*(a: varargs[int]): int =
   ## Least common multiple
   return reduce(lcm2, a, a[0])
+
+proc order_mod(x, m): int =
+  ## Return the order of x in the multiplicative group mod m
+  if m <= 1:
+    return 0
+
+  assert gcd(x, m) == 1
+
+  var z = x
+  result = 1
+  while z != 1:
+    z = (z * x) mod m
+    result += 1
+  return result
+
+proc largest_factor_relatively_prime(a, b): int =
+  while 1:
+    var d = gcd(a, b)
+    if d <= 1:
+      break
+    var b = d
+    while 1:
+      var q = a div d
+      var r = a mod d
+      if r > 0:
+        break
+      var a = q
+  return a
+
+proc kinda_order_mod(x, m): int =
+  return order_mod(x, largest_factor_relatively_prime(m, x))
