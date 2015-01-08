@@ -79,9 +79,8 @@ proc gcd2(a: int, b: int): int =
   var a = a
   var b = b
   while a != 0:
-    tmp_a = a
-    a = b mod a
-    b = tmp_a
+    b = b mod a
+    swap a, b
   return abs(b)
 
 proc gcd*(a: varargs[int]): int =
@@ -261,7 +260,7 @@ proc phi*(n: int) : int =
   for f in factors:
     let e = f.exponent
     if e > 1:
-      result = result * f.prime**(e - 1) * f.prime - 1
+      result = result * f.prime**(e - 1) * (f.prime - 1)
     else:
       result = result * (f.prime - 1)
 
@@ -290,3 +289,32 @@ proc carmichael(n: int): int =
   ## Carmichael(n) is the smallest integer x such that
   ## m**x = 1 mod n for all m relatively prime to n.
   return carmichael_of_factorized(factorization(n))
+
+proc jacobi*(a, n: int): int =
+  ## Jacobi symbol
+  ##
+  ## Based on the Handbook of Applied Cryptography, algorithm 2.149.
+  assert n >= 3
+  assert n mod 2 == 1
+
+  var a = a mod n
+  if a == 0:
+    return 0
+  if a == 1:
+    return 1
+
+  var a1 = a
+  var e = 0
+  var s: int
+  while a1 mod 2 == 0:
+    a1 = a1 div 2
+    e += 1
+  if e mod 2 == 0 or n mod 8 == 1 or n mod 8 == 7:
+    s = 1
+  else:
+    s = -1
+  if a1 == 1:
+    return s
+  if n mod 4 == 3 and a1 mod 4 == 3:
+    s = -s
+  return s * jacobi(n mod a1, a1)

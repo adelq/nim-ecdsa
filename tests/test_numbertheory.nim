@@ -64,3 +64,10 @@ test "Test phi":
     phi(36) == 12
     phi(99) == 60
     phi(64) == 32
+
+test "Test Jacobi":
+  check:
+    jacobi(19, 45) == 1
+    jacobi(8, 21) == -1
+    jacobi(5, 21) == 1
+    jacobi(1001, 9907) == -1
