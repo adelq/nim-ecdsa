@@ -245,3 +245,17 @@ proc factorization*(n: int): seq[tuple[prime, exponent: int]] =
       if n > 1:
         result.add((n, 1))
   return result
+
+proc phi*(n: int) : int =
+  if n < 3:
+    return 1
+
+  result = 1
+  let factors = factorization(n)
+
+  for f in factors:
+    let e = f.exponent
+    if e > 1:
+      result = int(float(result) * math.pow(float(f.prime), float(e - 1)) * float(f.prime - 1))
+    else:
+      result = result * (f.prime - 1)

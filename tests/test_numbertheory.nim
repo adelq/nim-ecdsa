@@ -58,3 +58,9 @@ test "Test next_prime with bigger primes":
 test "Test factorization":
   check factorization(1091*977) == @[(977, 1), (1091, 1)]
   check factorization(1091*977*1091) == @[(977, 1), (1091, 2)]
+
+test "Test phi":
+  check:
+    phi(36) == 12
+    phi(99) == 60
+    phi(64) == 32
