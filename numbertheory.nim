@@ -184,3 +184,11 @@ proc isprime*(n): bool =
       if y != initBigInt(n-1):
         return false
   return true
+
+proc next_prime*(start: int): int =
+  ## Return the smallest prime larger than the starting value
+  if start < 2:
+    return 2
+  result = (start + 1) or 1
+  while not isprime(result):
+    result += 2
