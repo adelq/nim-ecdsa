@@ -192,3 +192,56 @@ proc next_prime*(start: int): int =
   result = (start + 1) or 1
   while not isprime(result):
     result += 2
+
+proc factorization*(n: int): seq[tuple[prime, exponent: int]] =
+  var n = n
+  if n < 2:
+    return nil
+
+  var d = 2
+  result = @[]
+
+  # Test the small primes
+  for d in smallprimes:
+    if d > n:
+      break
+    var q = n div d
+    var r = n mod d
+    if r == 0:
+      var count = 1
+      while d <= n:
+        n = q
+        q = n div d
+        r = n mod d
+        if r != 0:
+          break
+        count += 1
+      result.add((d, count))
+
+  # If n is still greater than the last of our small primes,
+  # then it may require further work
+  if n > smallprimes[smallprimes.high]:
+    if isprime(n):
+      result.add((d, 1))
+    else:
+      d = smallprimes[smallprimes.high]
+      while true:
+        d += 2
+        var q = n div d
+        var r = n mod d
+        if q < d:
+          break
+        if r == 0:
+          var count = 1
+          n = q
+          while d <= n:
+            q = n div d
+            r = n mod d
+            if r != 0:
+              break
+            n = q
+            count += 1
+          result.add((d, count))
+      if n > 1:
+        result.add((n, 1))
+  return result

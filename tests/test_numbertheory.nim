@@ -54,3 +54,7 @@ test "Test is_prime with bigger primes":
 test "Test next_prime with bigger primes":
   for i in 0..bigprimes.high-1:
     check next_prime(bigprimes[i]) == bigprimes[i+1]
+
+test "Test factorization":
+  check factorization(1091*977) == @[(977, 1), (1091, 1)]
+  check factorization(1091*977*1091) == @[(977, 1), (1091, 2)]
