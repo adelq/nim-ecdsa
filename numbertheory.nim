@@ -27,6 +27,9 @@ proc reduce[U, V](fn: proc(a: V, b: U): V, s: openArray[U], z: V): V =
   for i in 0..s.high:
     result = fn(result, s[i])
 
+proc `**` (a, b: int): int =
+  return int(math.pow(float(a), float(b)))
+
 proc modular_exp(base, exponent, modulus: BigInt): BigInt =
   ## Raise base to exponent, reducing by modulus
   assert exponent >= 0
@@ -194,6 +197,7 @@ proc next_prime*(start: int): int =
     result += 2
 
 proc factorization*(n: int): seq[tuple[prime, exponent: int]] =
+  ## Decompose n into a sequence of (prime, exponent) pairs.
   var n = n
   if n < 2:
     return nil
@@ -247,6 +251,7 @@ proc factorization*(n: int): seq[tuple[prime, exponent: int]] =
   return result
 
 proc phi*(n: int) : int =
+  ## Return the Euler totient function of n.
   if n < 3:
     return 1
 
@@ -256,6 +261,32 @@ proc phi*(n: int) : int =
   for f in factors:
     let e = f.exponent
     if e > 1:
-      result = int(float(result) * math.pow(float(f.prime), float(e - 1)) * float(f.prime - 1))
+      result = result * f.prime**(e - 1) * f.prime - 1
     else:
       result = result * (f.prime - 1)
+
+proc carmichael_of_ppower(pp: tuple[p, a: int]): int =
+  ## Carmichael function of the given power of the given prime.
+  let
+    p = pp.p
+    a = pp.a
+  if p == 2 and a > 2:
+    return 2**(a - 2)
+  else:
+    return (p - 1) * p**(a - 1)
+
+proc carmichael_of_factorized(f_list: seq[tuple[prime, exponent: int]]): int =
+  ## Return the Carmichael function of a number represented as sequence  of
+  ## (prime, exponent) pairs.
+  if len(f_list) < 1:
+    return 1
+  result = carmichael_of_ppower(f_list[0])
+  for i in 1..f_list.high:
+    result = lcm(result, carmichael_of_ppower(f_list[i]))
+
+proc carmichael(n: int): int =
+  ## Return Carmichael function of n.
+  ##
+  ## Carmichael(n) is the smallest integer x such that
+  ## m**x = 1 mod n for all m relatively prime to n.
+  return carmichael_of_factorized(factorization(n))
