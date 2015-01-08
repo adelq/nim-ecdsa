@@ -15,3 +15,12 @@ test "Testing lcm":
 
 test "Testing inverse modulo":
   check inverse_mod(42, 2017) == 1969
+
+test "Testing is_prime with small primes":
+  for prime in smallprimes:
+    check:
+      isprime(prime)
+
+test "Test is_prime with big primes":
+  check:
+    isprime(999331)

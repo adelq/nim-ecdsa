@@ -1,26 +1,26 @@
 import bigints
 import math
 
-const smallprimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41,
-                     43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
-                     101, 103, 107, 109, 113, 127, 131, 137, 139, 149,
-                     151, 157, 163, 167, 173, 179, 181, 191, 193, 197,
-                     199, 211, 223, 227, 229, 233, 239, 241, 251, 257,
-                     263, 269, 271, 277, 281, 283, 293, 307, 311, 313,
-                     317, 331, 337, 347, 349, 353, 359, 367, 373, 379,
-                     383, 389, 397, 401, 409, 419, 421, 431, 433, 439,
-                     443, 449, 457, 461, 463, 467, 479, 487, 491, 499,
-                     503, 509, 521, 523, 541, 547, 557, 563, 569, 571,
-                     577, 587, 593, 599, 601, 607, 613, 617, 619, 631,
-                     641, 643, 647, 653, 659, 661, 673, 677, 683, 691,
-                     701, 709, 719, 727, 733, 739, 743, 751, 757, 761,
-                     769, 773, 787, 797, 809, 811, 821, 823, 827, 829,
-                     839, 853, 857, 859, 863, 877, 881, 883, 887, 907,
-                     911, 919, 929, 937, 941, 947, 953, 967, 971, 977,
-                     983, 991, 997, 1009, 1013, 1019, 1021, 1031, 1033,
-                     1039, 1049, 1051, 1061, 1063, 1069, 1087, 1091, 1093,
-                     1097, 1103, 1109, 1117, 1123, 1129, 1151, 1153, 1163,
-                     1171, 1181, 1187, 1193, 1201, 1213, 1217, 1223, 1229]
+const smallprimes* = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41,
+                      43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
+                      101, 103, 107, 109, 113, 127, 131, 137, 139, 149,
+                      151, 157, 163, 167, 173, 179, 181, 191, 193, 197,
+                      199, 211, 223, 227, 229, 233, 239, 241, 251, 257,
+                      263, 269, 271, 277, 281, 283, 293, 307, 311, 313,
+                      317, 331, 337, 347, 349, 353, 359, 367, 373, 379,
+                      383, 389, 397, 401, 409, 419, 421, 431, 433, 439,
+                      443, 449, 457, 461, 463, 467, 479, 487, 491, 499,
+                      503, 509, 521, 523, 541, 547, 557, 563, 569, 571,
+                      577, 587, 593, 599, 601, 607, 613, 617, 619, 631,
+                      641, 643, 647, 653, 659, 661, 673, 677, 683, 691,
+                      701, 709, 719, 727, 733, 739, 743, 751, 757, 761,
+                      769, 773, 787, 797, 809, 811, 821, 823, 827, 829,
+                      839, 853, 857, 859, 863, 877, 881, 883, 887, 907,
+                      911, 919, 929, 937, 941, 947, 953, 967, 971, 977,
+                      983, 991, 997, 1009, 1013, 1019, 1021, 1031, 1033,
+                      1039, 1049, 1051, 1061, 1063, 1069, 1087, 1091, 1093,
+                      1097, 1103, 1109, 1117, 1123, 1129, 1151, 1153, 1163,
+                      1171, 1181, 1187, 1193, 1201, 1213, 1217, 1223, 1229]
 
 proc reduce[U, V](fn: proc(a: V, b: U): V, s: openArray[U], z: V): V =
   result = z
@@ -123,3 +123,64 @@ proc largest_factor_relatively_prime(a, b): int =
 
 proc kinda_order_mod(x, m): int =
   return order_mod(x, largest_factor_relatively_prime(m, x))
+
+proc isprime*(n): bool =
+  ## Returns whether x is prime
+  ##
+  ## Uses the Miller-Rabin test, as given in Menezes et al. p. 138.
+  ## This test is not exact: there are composite values n for which
+  ## it returns true.
+
+  if n <= smallprimes[smallprimes.high]:
+    if n in smallprimes:
+      return true
+    else:
+      return false
+
+  if gcd(n, 2*3*5*7*11) != 1:
+    return false
+
+  # Choose a number of iterations sufficient to reduce the
+  # probability of accepting a composite below 2**-80
+  # (from Menezes et al. Table 4.4)
+  var t = 40
+  var n_bits = 1 + int(math.log2(float(n)))
+  const prime_constants = [[100, 27],
+                           [150, 18],
+                           [200, 15],
+                           [250, 12],
+                           [300, 9],
+                           [350, 8],
+                           [400, 7],
+                           [450, 6],
+                           [550, 5],
+                           [650, 4],
+                           [850, 3],
+                           [1300, 2]]
+  for prime_const_pair in prime_constants:
+    let k = prime_const_pair[0]
+    let tt = prime_const_pair[1]
+    if n_bits < k:
+      break
+    t = tt
+
+  # Run the test t times:
+
+  var s = 0
+  var r = n - 1
+  while r mod 2 == 0:
+    s += 1
+    r = r div 2
+  for i in countup(0, t):
+    let a = smallprimes[i]
+    var y = modular_exp(initBigInt(a), initBigInt(r), initBigInt(n))
+    if y != initBigInt(1) and y != initBigInt(n-1):
+      var j = 1
+      while j <= s-1 and y != initBigInt(n-1):
+        y = modular_exp(y, initBigInt(2), initBigInt(n))
+        if y == 1:
+          return false
+        j += 1
+      if y != initBigInt(n-1):
+        return false
+  return true
