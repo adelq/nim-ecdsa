@@ -6,4 +6,4 @@ description: "Pure Nim implementation of ECDSA cryptography"
 license: "MIT"
 
 [Deps]
-requires: "nimrod > 0.9.4, bigints >= 0.2"
+requires: "nimrod > 0.9.4, bigints >= 0.2, sha1 >= 1.0"
